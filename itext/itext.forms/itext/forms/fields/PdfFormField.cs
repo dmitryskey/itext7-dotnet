@@ -23,7 +23,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
 using iText.Commons;
 using iText.Commons.Datastructures;
@@ -1198,6 +1200,32 @@ namespace iText.Forms.Fields {
                 throw new PdfException(e);
             }
             return this;
+        }
+
+        public virtual CheckBoxType GetCheckType()
+        {
+            var pdfObject = GetPdfObject();
+
+            var pdfObjectAsString = pdfObject != null ? pdfObject.ToString() : string.Empty;
+
+            const string TYPE = "TYPE";
+            var regex = new Regex($@"/CA\s(?<{TYPE}>[0-9a-zA-Z]+?)");
+
+            var matches = regex.Match(pdfObjectAsString);
+
+            var types = new Dictionary<string, CheckBoxType>
+            {
+                {"4", CheckBoxType.CHECK},
+                {"l", CheckBoxType.CIRCLE},
+                {"8", CheckBoxType.CROSS},
+                {"u", CheckBoxType.DIAMOND},
+                {"n", CheckBoxType.SQUARE},
+                {"H", CheckBoxType.STAR}
+            };
+
+            var type = matches.Groups[TYPE];
+
+            return types.ContainsKey(type.Value) ? types[type.Value] : CheckBoxType.CROSS;
         }
 
         /// <summary><inheritDoc/></summary>
