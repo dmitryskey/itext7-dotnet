@@ -1202,16 +1202,46 @@ namespace iText.Forms.Fields {
             return this;
         }
 
+        /// <summary>
+        /// Returns check box type (circle, cross etc., <see cref="CheckBoxType" />)
+        /// </summary>
+        /// <returns>the new checkbox marker, <see cref="CheckBoxType" />.</returns>
         public virtual CheckBoxType GetCheckType()
         {
+            if (checkType != null) {
+                return checkType.GetValue();
+            }
+            
             var pdfObject = GetPdfObject();
 
-            var pdfObjectAsString = pdfObject != null ? pdfObject.ToString() : string.Empty;
+            // CROSS by default
+            var type = "8";
 
-            const string TYPE = "TYPE";
-            var regex = new Regex($@"/CA\s(?<{TYPE}>[0-9a-zA-Z]+?)");
-
-            var matches = regex.Match(pdfObjectAsString);
+            var mk = pdfObject.GetAsDictionary(PdfName.MK);
+            if (mk != null && mk.ContainsKey(PdfName.CA))
+            {
+                type = mk.Get(PdfName.CA).ToString();
+            }
+            else
+            {
+                var kids = pdfObject.GetAsArray(PdfName.Kids);
+                foreach (var kid in kids)
+                {
+                    if (!kid.IsDictionary())
+                    {
+                        continue;
+                    }
+                    
+                    mk = ((PdfDictionary)kid).GetAsDictionary(PdfName.MK);
+                    if (mk == null || !mk.ContainsKey(PdfName.CA))
+                    {
+                        continue;
+                    }
+                    
+                    type = mk.Get(PdfName.CA).ToString();
+                    break;
+                }
+            }
 
             var types = new Dictionary<string, CheckBoxType>
             {
@@ -1223,9 +1253,24 @@ namespace iText.Forms.Fields {
                 {"H", CheckBoxType.STAR}
             };
 
-            var type = matches.Groups[TYPE];
+            checkType = new NullableContainer<CheckBoxType>(types.ContainsKey(type) ? types[type] : CheckBoxType.CROSS);
+            return checkType.GetValue();
+        }
 
-            return types.ContainsKey(type.Value) ? types[type.Value] : CheckBoxType.CROSS;
+        /// <summary>
+        /// Returns check box export value.
+        /// </summary>
+        /// <returns>Check box export value.</returns>
+        public virtual string GetCheckBoxExportValue()
+        {
+            var ap = GetPdfObject().GetAsDictionary(PdfName.AP);
+
+            if (ap == null || !ap.ContainsKey(PdfName.N))
+            {
+                return null;
+            }
+
+            return ap.GetAsDictionary(PdfName.N).KeySet().Select(key => key.ToString().Substring(1)).FirstOrDefault();
         }
 
         /// <summary><inheritDoc/></summary>
