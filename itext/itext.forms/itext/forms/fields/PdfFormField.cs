@@ -1270,7 +1270,11 @@ namespace iText.Forms.Fields {
                 return null;
             }
 
-            return ap.GetAsDictionary(PdfName.N).KeySet().Select(key => key.ToString().Substring(1)).FirstOrDefault();
+            return ap.GetAsDictionary(PdfName.N)
+              .KeySet()
+              .Select(key => key.ToString().Substring(1))
+              .Where(key => string.Compare(key, PdfFormAnnotation.OFF_STATE_VALUE, StringComparison.CurrentCulture) != 0)
+              .FirstOrDefault();
         }
 
         /// <summary><inheritDoc/></summary>
