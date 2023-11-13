@@ -1217,29 +1217,32 @@ namespace iText.Forms.Fields {
             // CROSS by default
             var type = "8";
 
-            var mk = pdfObject.GetAsDictionary(PdfName.MK);
-            if (mk != null && mk.ContainsKey(PdfName.CA))
+            if (pdfObject != null && pdfObject.IsDictionary())
             {
-                type = mk.Get(PdfName.CA).ToString();
-            }
-            else
-            {
-                var kids = pdfObject.GetAsArray(PdfName.Kids);
-                foreach (var kid in kids)
+                var mk = pdfObject.GetAsDictionary(PdfName.MK);
+                if (mk != null && mk.ContainsKey(PdfName.CA))
                 {
-                    if (!kid.IsDictionary())
-                    {
-                        continue;
-                    }
-                    
-                    mk = ((PdfDictionary)kid).GetAsDictionary(PdfName.MK);
-                    if (mk == null || !mk.ContainsKey(PdfName.CA))
-                    {
-                        continue;
-                    }
-                    
                     type = mk.Get(PdfName.CA).ToString();
-                    break;
+                }
+                else
+                {
+                    var kids = pdfObject.GetAsArray(PdfName.Kids);
+                    foreach (var kid in kids)
+                    {
+                        if (!kid.IsDictionary())
+                        {
+                            continue;
+                        }
+                        
+                        mk = (kid as PdfDictionary).GetAsDictionary(PdfName.MK);
+                        if (mk == null || !mk.ContainsKey(PdfName.CA))
+                        {
+                            continue;
+                        }
+                        
+                        type = mk.Get(PdfName.CA).ToString();
+                        break;
+                    }
                 }
             }
 
@@ -1263,9 +1266,16 @@ namespace iText.Forms.Fields {
         /// <returns>Check box export value.</returns>
         public virtual string GetCheckBoxExportValue()
         {
-            var ap = GetPdfObject().GetAsDictionary(PdfName.AP);
+            var pdfObject = GetPdfObject();
 
-            if (ap == null || !ap.ContainsKey(PdfName.N))
+            if (pdfObject == null || !pdfObject.IsDictionary())
+            {
+                return null;
+            }
+
+            var ap = pdfObject.GetAsDictionary(PdfName.AP);
+
+            if (ap == null || !ap.IsDictionary())
             {
                 return null;
             }

@@ -182,22 +182,22 @@ namespace iText.Forms {
         [NUnit.Framework.TestCase(CheckBoxType.STAR)]
         [NUnit.Framework.TestCase(CheckBoxType.SQUARE)]
         public virtual void CheckBoxTypesTest(CheckBoxType type) {
-            String srcPdf = sourceFolder + "checkBoxTypes.pdf";
-            PdfDocument pdfDoc = new PdfDocument(new PdfReader(srcPdf));
-            PdfAcroForm form = PdfFormCreator.GetAcroForm(pdfDoc, true);
+            var srcPdf = sourceFolder + "checkBoxTypes.pdf";
+            var pdfDoc = new PdfDocument(new PdfReader(srcPdf));
+            var form = PdfFormCreator.GetAcroForm(pdfDoc, true);
 
-            PdfFormField checkBox = form.GetField($"cb_fs_{type}");
+            var checkBox = form.GetField($"cb_fs_{type}");
             NUnit.Framework.Assert.AreEqual(type, checkBox.GetCheckType());
         }
-
+ 
         [NUnit.Framework.Test]
         public virtual void CheckBoxExportValueTest()
         {
-            String srcPdf = sourceFolder + "checkBoxTypes.pdf";
-            PdfDocument pdfDoc = new PdfDocument(new PdfReader(srcPdf));
-            PdfAcroForm form = PdfFormCreator.GetAcroForm(pdfDoc, true);
+            var srcPdf = sourceFolder + "checkBoxTypes.pdf";
+            var pdfDoc = new PdfDocument(new PdfReader(srcPdf));
+            var form = PdfFormCreator.GetAcroForm(pdfDoc, true);
 
-            PdfFormField checkBox = form.GetField($"cb_fs_{CheckBoxType.CHECK}");
+            var checkBox = form.GetField($"cb_fs_{CheckBoxType.CHECK}");
             NUnit.Framework.Assert.AreEqual("Yes", checkBox.GetCheckBoxExportValue());
         }
 
